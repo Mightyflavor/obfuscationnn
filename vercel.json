@@ -1,0 +1,10 @@
+{
+  "functions": {
+    "api/obfuscate.js": {
+      "runtime": "nodejs18.x"
+    }
+  },
+  "routes": [
+    { "src": "/(.*)", "dest": "/api/obfuscate.js" }
+  ]
+}
