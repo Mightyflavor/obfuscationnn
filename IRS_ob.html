@@ -195,55 +195,69 @@
         
       </div>
     
-        <script>
-
-      // Function to generate a random obfuscation string
-function randomObfuscation(length = 4) {
-    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-    return Array.from({ length }, () => chars[Math.floor(Math.random() * chars.length)]).join("");
-}
-
-// Function to obfuscate text while keeping frontend appearance the same
-function obfuscateText(text) {
-    let obfuscatedHTML = "";
-    for (let char of text) {
-        if (char.trim()) { // Avoid obfuscating spaces
-            let obfuscationType = ["content", "display-none", "font-size-zero", "zero-width"][Math.floor(Math.random() * 4)];
-
-            if (obfuscationType === "content") {
-                obfuscatedHTML += `${char}<span style="content: '${randomObfuscation()}';"></span>`;
-            } else if (obfuscationType === "display-none") {
-                obfuscatedHTML += `${char}<span style="display:none">${randomObfuscation()}</span>`;
-            } else if (obfuscationType === "font-size-zero") {
-                obfuscatedHTML += `${char}<span style="font-size:0">${randomObfuscation()}</span>`;
-            } else if (obfuscationType === "zero-width") {
-                obfuscatedHTML += `${char}&#x200B;`;  // Invisible zero-width space
-            }
-        } else {
-            obfuscatedHTML += char;  // Preserve spaces
-        }
+    <script>
+document.addEventListener("DOMContentLoaded", function () {
+    function randomObfuscation(length = 4) {
+        const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+        return Array.from({ length }, () => chars[Math.floor(Math.random() * chars.length)]).join("");
     }
-    return obfuscatedHTML;
-}
 
-// Function to traverse all text nodes and obfuscate them
-function obfuscatePageText() {
-    let elements = document.body.querySelectorAll("*:not(script):not(style)"); // Ignore scripts & styles
-    elements.forEach(element => {
-        element.childNodes.forEach(node => {
-            if (node.nodeType === Node.TEXT_NODE && node.nodeValue.trim() !== "") {
-                let span = document.createElement("span");
-                span.innerHTML = obfuscateText(node.nodeValue);
-                element.replaceChild(span, node);
+    function obfuscateText(text) {
+        let obfuscatedHTML = "";
+        for (let char of text) {
+            if (char.trim()) { // Avoid obfuscating spaces
+                let obfuscationType = ["display-none", "font-size-zero", "zero-width"][Math.floor(Math.random() * 3)];
+
+                if (obfuscationType === "display-none") {
+                    obfuscatedHTML += `${char}<span style="display:none">${randomObfuscation()}</span>`;
+                } else if (obfuscationType === "font-size-zero") {
+                    obfuscatedHTML += `${char}<span style="font-size:0">${randomObfuscation()}</span>`;
+                } else if (obfuscationType === "zero-width") {
+                    obfuscatedHTML += `${char}&#x200B;`; // Invisible zero-width space
+                }
+            } else {
+                obfuscatedHTML += char; // Preserve spaces
+            }
+        }
+        return obfuscatedHTML;
+    }
+
+    function obfuscatePageText() {
+        let elements = document.body.querySelectorAll("*:not(script):not(style)");
+        elements.forEach(element => {
+            element.childNodes.forEach(node => {
+                if (node.nodeType === Node.TEXT_NODE && node.nodeValue.trim() !== "") {
+                    let span = document.createElement("span");
+                    span.innerHTML = obfuscateText(node.nodeValue);
+                    element.replaceChild(span, node);
+                }
+            });
+        });
+    }
+
+    function obfuscateSourceCode() {
+        let originalHTML = document.documentElement.outerHTML;
+        let modifiedHTML = originalHTML.replace(/>([^<]+)</g, (match, text) => {
+            return ">" + obfuscateText(text) + "<";
+        });
+
+        // Overwrite the document's source in memory
+        Object.defineProperty(document, "documentElement", {
+            get: function () {
+                let docClone = document.createElement("html");
+                docClone.innerHTML = modifiedHTML;
+                return docClone;
             }
         });
-    });
-}
 
-// Run the obfuscation after the page loads
-document.addEventListener("DOMContentLoaded", obfuscatePageText);
+        console.log("Obfuscation applied to source code.");
+    }
 
-    </script>
+    obfuscatePageText(); // Obfuscate visible text
+    obfuscateSourceCode(); // Obfuscate page source
+});
+</script>
+
       <!--[if mso | IE]></td></tr></table><table align="center" border="0" cellpadding="0" cellspacing="0" class="" role="presentation" style="width:632px;" width="632" ><tr><td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;"><![endif]-->
     
       
